@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--HTML file auto generated using EmulatorJS codehelper-->
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      #game-container {
+        width: 640px;
+        height: 480px;
+        max-width: 100%;
+        position: relative;
+        background: #5A5A5A;
+        z-index: 2; /* Higher z-index */
+      }
+      #cliffs-emulators, #nes-edition {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        color: #ffffff;
+        z-index: 1; /* Lower z-index */
+      }
+      #cliffs-emulators {
+        font-size: 48px;
+        font-weight: bold;
+        top: 30%;
+      }
+      #nes-edition {
+        font-size: 24px;
+        top: 50%;
+      }
+      #buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        z-index: 3; /* Highest z-index */
+      }
+      #buttons > input, #buttons > button {
+        margin: 0 10px;
+        padding: 10px;
+        font-size: 18px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #buttons > button {
+        background-color: #4CAF50;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="game"></div>
+      <div id="cliffs-emulators">Cliffs Emulator</div>
+      <div id="nes-edition">Deluxe Edition</div>
+    </div>
+    <div id="buttons">
+      <input id="insert-game" type="file">
+      <button id="eject-game" onclick="location.reload();">Eject Game</button>
+    </div>
+<script>
+  // Prompt user to select a file
+  const fileInput = document.getElementById('insert-game');
+  const cliffsEmulators = document.getElementById('cliffs-emulators');
+  const nesEdition = document.getElementById('nes-edition');
+  fileInput.onchange = () => {
+    // Hide the texts
+    cliffsEmulators.style.display = 'none';
+    nesEdition.style.display = 'none';
+
+    const file = fileInput.files[0];
+    let extension = file.name.split('.').pop().toLowerCase();
+
+    let core;
+    if(extension === 'nes') core = 'nes';
+    else if(['sfc', 'smc'].includes(extension)) core = 'snes';
+    else if(['z64', 'n64'].includes(extension)) core = 'n64'
+    else if(['gba', 'gbc', 'gb'].includes(extension)) core = 'gba';
+    else if(extension === 'nds') core = 'nds';
+    else throw new Error('Unsupported file type. Please choose a valid game file.');
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      // Load the selected file as a blob
+      const gameData = reader.result;
+      const gameBlob = new Blob([gameData], { type: 'application/octet-stream' });
+
+      // Set emulator parameters and load game
+      EJS_player = '#game';
+      EJS_core = core;
+      EJS_gameName = `${core} emulator`;
+      EJS_color = '#0064ff';
+      EJS_pathtodata = 'https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/';
+      EJS_gameUrl = URL.createObjectURL(gameBlob);
+
+      // Load the emulator
+      const loaderScript = document.createElement('script');
+      loaderScript.src = 'https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/loader.js';
+      document.body.appendChild(loaderScript);
+    };
+    reader.readAsArrayBuffer(file);
+  };
+</script>
+  </body>
+</html>
